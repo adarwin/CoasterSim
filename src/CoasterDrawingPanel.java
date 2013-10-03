@@ -8,51 +8,57 @@ import java.util.ArrayList;
 public class CoasterDrawingPanel extends JPanel {
     private Coaster coaster;
     private Track track;
+    private int trackXCoord, trackYCoord;
+
     public CoasterDrawingPanel(Coaster coaster) {
         super();
         this.coaster = coaster;
         track = coaster.getTrack();
         setLayout(null);
+        trackXCoord = 150;
+        trackYCoord = 30;
     }
+
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         int multiplier = 50;
+        // Draw track
         RailSection startingRailSection = track.getStartingRailSection();
         RailSection railSection = startingRailSection;
         g.setColor(Color.blue);
         while ((railSection = railSection.getNext()) != null)
         {
-            g.drawRect(railSection.x*multiplier, railSection.y*multiplier,
+            g.drawRect(trackXCoord+(railSection.x*multiplier),
+                       trackYCoord+(railSection.y*multiplier),
                        multiplier, multiplier);
             g.setColor(Color.black);
             if (railSection == startingRailSection) break;
         }
-        //RailSection[][] railSectionPlane = track.getRailSectionPlane();
-        /*
-        for (int i = 0; i < 4; i++) {
-            g.drawRect(i*multiplier, 0, multiplier, multiplier);
-            g.drawRect(i*multiplier, 3*multiplier, multiplier, multiplier);
-            g.drawRect(0, i*multiplier, multiplier, multiplier);
-            g.drawRect(3*multiplier, i*multiplier, multiplier, multiplier);
-        }
-        */
-        //ArrayList<Train> trains = coaster.getTrains();
-        //Train train = trains.get(0);
+
+        // Draw trains on track
         Train train = coaster.train1;
         int numberOfCars = train.getNumberOfCars();
-        railSection = train.getCurrentRailSection();
-        int x;
-        int y;
+        RailSection railSectionAtFrontOfTrain = train.getCurrentRailSection();
+        int x, y;
         g.setColor(Color.red);
         for (int i = 0; i < numberOfCars; i++) {
+            x = trackXCoord+railSection.x*multiplier;
+            y = trackYCoord+railSection.y*multiplier;
             Car car = train.getCar(i);
             int numberOfSeats = car.getNumberOfSeats();
-            x = railSection.x;
-            y = railSection.y;
-            g.drawRect(x*multiplier, y*multiplier, multiplier, multiplier);
+            int numberOfRows = numberOfSeats/2;
+            int seatSize = 15;
+            int seatMargin = 7;
+            for (int j = 0; j < numberOfRows; j++) {
+                g.drawRect(x+seatMargin, y+seatMargin+j*seatSize+seatMargin*j,
+                           seatSize, seatSize);
+                g.drawRect(x+multiplier-seatMargin-seatSize,
+                           y+seatMargin+j*seatSize+seatMargin*j,
+                           seatSize, seatSize);
+            }
+            g.drawRect(x, y, multiplier, multiplier);
             railSection = railSection.getPrevious();
         }
         g.setColor(Color.black);
-
     }
 }
