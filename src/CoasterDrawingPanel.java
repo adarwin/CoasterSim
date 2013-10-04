@@ -22,23 +22,45 @@ public class CoasterDrawingPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         int multiplier = 50;
+        int lineSpaceSize = 10;
+        int verticalOffset = 100;
+        int horizontalOffset = 0;
+        // Draw people in main line
+        //synchronized(this) {
+            LinkedPoint<Boolean> currentLineSpace = coaster.getMainLineSpace();
+            for (Person person : CoasterSimulator.mainLine) {
+                int x = currentLineSpace.x*lineSpaceSize+horizontalOffset;
+                int y = currentLineSpace.y*lineSpaceSize+verticalOffset;
+                //g.drawRect(x, y, lineSpaceSize, lineSpaceSize);
+                g.fillOval(x, y, lineSpaceSize, lineSpaceSize);
+                currentLineSpace = currentLineSpace.getNext();
+                if (currentLineSpace == null) break;
+            }
+        //}
+        // Draw people in sub lines
+        // Draw coasters
         // Draw track
-        RailSection startingRailSection = track.getStartingRailSection();
-        RailSection railSection = startingRailSection;
+        LinkedPoint<RailSection> startingRailSection = track.getStartingRailSection();
+        LinkedPoint<RailSection> railSection = startingRailSection;
         g.setColor(Color.blue);
+        g.drawRect(trackXCoord+(startingRailSection.x*multiplier),
+                   trackYCoord+(startingRailSection.y*multiplier),
+                   multiplier, multiplier);
+        g.setColor(Color.black);
         while ((railSection = railSection.getNext()) != null)
         {
             g.drawRect(trackXCoord+(railSection.x*multiplier),
                        trackYCoord+(railSection.y*multiplier),
                        multiplier, multiplier);
-            g.setColor(Color.black);
             if (railSection == startingRailSection) break;
         }
 
         // Draw trains on track
         Train train = coaster.train1;
         int numberOfCars = train.getNumberOfCars();
-        RailSection railSectionAtFrontOfTrain = train.getCurrentRailSection();
+        LinkedPoint<RailSection> railSectionAtFrontOfTrain = train.getCurrentRailSection();
+        railSection = railSectionAtFrontOfTrain;
+        System.out.println("(" + railSectionAtFrontOfTrain.x + ", " + railSectionAtFrontOfTrain.y + ")");
         int x, y;
         g.setColor(Color.red);
         for (int i = 0; i < numberOfCars; i++) {
