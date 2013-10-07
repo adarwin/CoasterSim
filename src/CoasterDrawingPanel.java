@@ -4,6 +4,7 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 
 public class CoasterDrawingPanel extends JPanel {
     private Coaster coaster;
@@ -15,7 +16,7 @@ public class CoasterDrawingPanel extends JPanel {
         this.coaster = coaster;
         track = coaster.getTrack();
         setLayout(null);
-        trackXCoord = 150;
+        trackXCoord = 250;
         trackYCoord = 30;
     }
 
@@ -23,8 +24,8 @@ public class CoasterDrawingPanel extends JPanel {
         super.paintComponent(g);
         int multiplier = 50;
         int lineSpaceSize = 10;
-        int verticalOffset = 100;
-        int horizontalOffset = 0;
+        int verticalOffset = 130;
+        int horizontalOffset = 50;
         // Draw people in main line
         //synchronized(this) {
             LinkedPoint<Boolean> currentLineSpace = coaster.getMainLineSpace();
@@ -37,7 +38,18 @@ public class CoasterDrawingPanel extends JPanel {
                 if (currentLineSpace == null) break;
             }
         //}
+        verticalOffset = 150;
+        horizontalOffset = 200;
         // Draw people in sub lines
+        //currentLineSpace = coaster.getCar1LineSpace();
+        drawCarLine(g, CoasterSimulator.car1Line, coaster.getCar1LineSpace(),
+                    lineSpaceSize, horizontalOffset, verticalOffset, 0, 50);
+        drawCarLine(g, CoasterSimulator.car2Line, coaster.getCar2LineSpace(),
+                    lineSpaceSize, horizontalOffset, verticalOffset, 0, 50);
+        drawCarLine(g, CoasterSimulator.car3Line, coaster.getCar3LineSpace(),
+                    lineSpaceSize, horizontalOffset, verticalOffset, 0, 50);
+        drawCarLine(g, CoasterSimulator.car4Line, coaster.getCar4LineSpace(),
+                    lineSpaceSize, horizontalOffset, verticalOffset, 0, 50);
         // Draw coasters
         // Draw track
         LinkedPoint<RailSection> startingRailSection = track.getStartingRailSection();
@@ -60,27 +72,55 @@ public class CoasterDrawingPanel extends JPanel {
         int numberOfCars = train.getNumberOfCars();
         LinkedPoint<RailSection> railSectionAtFrontOfTrain = train.getCurrentRailSection();
         railSection = railSectionAtFrontOfTrain;
-        System.out.println("(" + railSectionAtFrontOfTrain.x + ", " + railSectionAtFrontOfTrain.y + ")");
-        int x, y;
+        //System.out.println("(" + railSectionAtFrontOfTrain.x + ", " + railSectionAtFrontOfTrain.y + ")");
+        int carXCoord, carYCoord;
         g.setColor(Color.red);
         for (int i = 0; i < numberOfCars; i++) {
-            x = trackXCoord+railSection.x*multiplier;
-            y = trackYCoord+railSection.y*multiplier;
+            carXCoord = trackXCoord+railSection.x*multiplier;
+            carYCoord = trackYCoord+railSection.y*multiplier;
             Car car = train.getCar(i);
             int numberOfSeats = car.getNumberOfSeats();
             int numberOfRows = numberOfSeats/2;
             int seatSize = 15;
             int seatMargin = 7;
+            int rowNumber = 0;
+            int seatNumber = 0;
+            g.setColor(Color.black);
+            for (Person person : car.passengers) {
+                g.fillOval(carXCoord+seatMargin + (seatNumber*seatSize) + (seatMargin*seatNumber),
+                           carYCoord+seatMargin + (rowNumber*seatSize) + (seatMargin*rowNumber),
+                           lineSpaceSize, lineSpaceSize);
+                seatNumber++;
+                if (seatNumber > 1) {
+                    seatNumber = 0;
+                    rowNumber++;
+                }
+            }
+            g.setColor(Color.red);
             for (int j = 0; j < numberOfRows; j++) {
-                g.drawRect(x+seatMargin, y+seatMargin+j*seatSize+seatMargin*j,
+                g.drawRect(carXCoord+seatMargin, carYCoord+seatMargin+j*seatSize+seatMargin*j,
                            seatSize, seatSize);
-                g.drawRect(x+multiplier-seatMargin-seatSize,
-                           y+seatMargin+j*seatSize+seatMargin*j,
+                g.drawRect(carXCoord+multiplier-seatMargin-seatSize,
+                           carYCoord+seatMargin+j*seatSize+seatMargin*j,
                            seatSize, seatSize);
             }
-            g.drawRect(x, y, multiplier, multiplier);
+            g.drawRect(carXCoord, carYCoord, multiplier, multiplier);
             railSection = railSection.getPrevious();
         }
         g.setColor(Color.black);
+    }
+    private void drawCarLine(Graphics g, BlockingQueue<Person> carLine,
+                             LinkedPoint<Boolean> currentLineSpace,
+                             int lineSpaceSize, int xCoord, int yCoord,
+                             int xScalar, int yScalar) {
+        if (xScalar == 0) xScalar = lineSpaceSize;
+        if (yScalar == 0) yScalar = lineSpaceSize;
+        for (Person person : carLine) {
+            int x = currentLineSpace.x * xScalar + xCoord;
+            int y = currentLineSpace.y * yScalar + yCoord;
+            g.fillOval(x, y, lineSpaceSize, lineSpaceSize);
+            currentLineSpace = currentLineSpace.getNext();
+            if (currentLineSpace == null) break;
+        }
     }
 }
