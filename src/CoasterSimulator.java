@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 public class CoasterSimulator {
     protected static Coaster coaster;
@@ -18,6 +19,7 @@ public class CoasterSimulator {
     private static JButton stopSimulationButton;
     private static JPanel mainPanel, controlPanel;
     private static CoasterDrawingPanel coasterDrawingPanel;
+    private static Timer repaintTimer;
     protected static BlockingQueue<Person> mainLine;
     protected static BlockingQueue<Person> car1Line, car2Line,
                                            car3Line, car4Line;
@@ -27,6 +29,12 @@ public class CoasterSimulator {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
+                repaintTimer = new Timer(33, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        coasterDrawingPanel.repaint();
+                    }
+                });
+                repaintTimer.start();
             }
         });
 
@@ -35,13 +43,8 @@ public class CoasterSimulator {
         personSpawner = new Thread(() -> {
             try {
                 Thread.sleep(3000);
-                for (int i = 0; i < 50; i++) {
+                for (;;) {//int i = 0; i < 50; i++) {
                     mainLine.put(new Person());
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            coasterDrawingPanel.repaint();
-                        }
-                    });
                     Thread.sleep(200);
                 }
             } catch (InterruptedException e) {
@@ -55,8 +58,15 @@ public class CoasterSimulator {
         lineCoordinator = new Thread(() -> {
             for (;;) {
                 try {
+                    /*
+                    if (car1Line.size() == 0) {
+                        while (car1Line.offer(mainLine.take())) {}
+                    } else if (car2Line.size() == 0) {
+                    }
+                    */
                     // Take a person from the main line
                     Person nextPerson = mainLine.take();
+                    Thread.sleep(300);
                     // Find an empty space in one of the 4 car lines
                     for(;;) {
                         if (car1Line.offer(nextPerson)) {
@@ -69,11 +79,6 @@ public class CoasterSimulator {
                             break;
                         }
                     }
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            coasterDrawingPanel.repaint();
-                        }
-                    });
                 } catch (InterruptedException ex) {
                     break;
                 }
@@ -91,51 +96,36 @@ public class CoasterSimulator {
                         for (Car car : coaster.train1.getCars()) {
                             car.passengers.clear();
                         }
-                        SwingUtilities.invokeLater(() -> {
-                            coasterDrawingPanel.repaint();
-                        });
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         for (int j = 0; j < numberOfCars; j++) {
                             Car car = coaster.train1.getCar(j);
                             while (car.passengers.remainingCapacity() > 0) {
+                                Thread.sleep(200);
                                 Person person;
                                 switch (j) {
                                 case 0:
-                                    System.out.println("Taking from car1line");
                                     person = car1Line.take();
                                     car.passengers.offer(person);
                                     break;
                                 case 1:
-                                    System.out.println("Taking from car2line");
                                     person = car2Line.take();
                                     car.passengers.offer(person);
                                     break;
                                 case 2:
-                                    System.out.println("Taking from car3line");
                                     person = car3Line.take();
                                     car.passengers.offer(person);
                                     break;
                                 case 3:
-                                    System.out.println("Taking from car4line");
                                     person = car4Line.take();
                                     car.passengers.offer(person);
                                     break;
                                 }
                             }
-                                SwingUtilities.invokeLater(() -> {
-                                    coasterDrawingPanel.repaint();
-                                });
                         }
                         // Try to pick up people
                         // for each car, pick up the people in the associated line
                     }
                     atStart = coaster.train1.advance();
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            coasterDrawingPanel.repaint();
-                        }
-                    });
-                    //if (atStart) break;
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
