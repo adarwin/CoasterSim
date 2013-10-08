@@ -59,23 +59,13 @@ public class CoasterSimulator {
 
 
         lineCoordinator = new Thread(() -> {
+            Person nextPerson;
             for (;;) {
                 try {
-                    //synchronized(this) {
-                        LinkedPoint<RailSection> trainLocation =
-                                        coaster.train1.getCurrentRailSection();
-                        if (trainLocation.isStartingPoint()) {
-                        }
-                    //}
-                    /*
-                    if (car1Line.size() == 0) {
-                        while (car1Line.offer(mainLine.take())) {}
-                    } else if (car2Line.size() == 0) {
-                    }
-                    */
+                    //if (!coaster.train1.getCurrentRailSection().isStartingPoint()) {
                     // Take a person from the main line
-                    Person nextPerson = mainLine.take();
-                    Thread.sleep(300);
+                    nextPerson = mainLine.take();
+                    //Thread.sleep(200);
                     // Find an empty space in one of the 4 car lines
                     for(;;) {
                         if (car1Line.offer(nextPerson)) {
@@ -88,6 +78,7 @@ public class CoasterSimulator {
                             break;
                         }
                     }
+                    //}
                 } catch (InterruptedException ex) {
                     break;
                 }
