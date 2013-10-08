@@ -90,8 +90,10 @@ public class CoasterDrawingPanel extends JPanel {
             g.setColor(Color.black);
             for (Person person : car.getPassengers()) {
                 g.setColor(person.getColor());
-                g.fillOval(carXCoord+seatMargin + (seatNumber*seatSize) + (seatMargin*seatNumber),
-                           carYCoord+seatMargin + (rowNumber*seatSize) + (seatMargin*rowNumber),
+                g.fillOval(carXCoord+seatMargin + (seatSize-lineSpaceSize)/2 +
+                           (seatNumber*seatSize) + (seatMargin*seatNumber),
+                           carYCoord+seatMargin + (seatSize-lineSpaceSize)/2 +
+                           (rowNumber*seatSize) + (seatMargin*rowNumber),
                            lineSpaceSize, lineSpaceSize);
                 seatNumber++;
                 if (seatNumber > 1) {

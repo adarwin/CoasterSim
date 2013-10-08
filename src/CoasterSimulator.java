@@ -17,7 +17,7 @@ import javax.swing.Timer;
 public class CoasterSimulator {
     protected final static Coaster coaster = new Coaster(2, 4);
     private static JFrame frame;
-    private static JButton stopSimulationButton;
+    private static JButton stopSimulationButton, sendCoasterButton;
     private static JPanel mainPanel, controlPanel;
     private static CoasterDrawingPanel coasterDrawingPanel;
     private static Timer repaintTimer;
@@ -46,9 +46,9 @@ public class CoasterSimulator {
                 Thread.sleep(3000);
                 for (;;) {//int i = 0; i < 50; i++) {
                     int rgbValue = (int)(Math.random()*0xFFFFFF);
+                    int sleepTime = 50+(int)(Math.random()*500);
                     mainLine.put(new Person(new Color(rgbValue)));
-                    System.out.println("Put person with color: " + rgbValue);
-                    //Thread.sleep(200);
+                    Thread.sleep(sleepTime);
                 }
             } catch (InterruptedException e) {
                 //e.printStackTrace();
@@ -98,9 +98,8 @@ public class CoasterSimulator {
         coasterDriver = new Thread(() -> {
             try {
                 boolean atStart = true;
-                for (;;) {//int i = 0; i < 50; i++) {
+                for (;;) {
                     if (atStart) {
-                        // wait
                         int numberOfCars = coaster.train1.getNumberOfCars();
                         // Remove any existing passengers
                         for (Car car : coaster.train1.getCars()) {
@@ -108,8 +107,10 @@ public class CoasterSimulator {
                         }
                         Thread.sleep(1000);
                         for (int j = 0; j < numberOfCars; j++) {
+                            if (coaster.train1.shouldDepart()) break;
                             Car car = coaster.train1.getCar(j);
                             while (car.getPassengers().remainingCapacity() > 0) {
+                                if (coaster.train1.shouldDepart()) break;
                                 Thread.sleep(200);
                                 Person person;
                                 switch (j) {
@@ -131,6 +132,10 @@ public class CoasterSimulator {
                                     break;
                                 }
                             }
+                        }
+                        coaster.train1.setShouldDepart(false);
+                        if (coaster.train1.getAndSetShouldDepart(false)) {
+                            Thread.sleep(1000);
                         }
                         // Try to pick up people
                         // for each car, pick up the people in the associated line
@@ -162,11 +167,7 @@ public class CoasterSimulator {
     }
 
     private static void initializeVariables() throws InterruptedException {
-        //coaster = new Coaster(2, 4);
         mainLine = new ArrayBlockingQueue<Person>(96);
-        for (int i = 0; i < 500; i++) {
-            //mainLine.put(new Person());
-        }
         car1Line = new ArrayBlockingQueue<Person>(4);
         car2Line = new ArrayBlockingQueue<Person>(4);
         car3Line = new ArrayBlockingQueue<Person>(4);
@@ -191,6 +192,13 @@ public class CoasterSimulator {
                 lineCoordinator.interrupt();
             }
         });
+        sendCoasterButton = new JButton("Send Coaster");
+        sendCoasterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                coaster.train1.setShouldDepart(true);
+                //CoasterSimulator.notifyAll();
+            }
+        });
     }
     private static void nestContainers() {
         mainPanel.add(coasterDrawingPanel, BorderLayout.CENTER);
@@ -198,6 +206,7 @@ public class CoasterSimulator {
     }
     private static void addComponentsToContainers() {
         controlPanel.add(stopSimulationButton);
+        controlPanel.add(sendCoasterButton);
     }
     private static void addListeners() {
     }
