@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class CoasterSimulator {
-    protected static Coaster coaster;
+    protected final static Coaster coaster = new Coaster(2, 4);
     private static JFrame frame;
     private static JButton stopSimulationButton;
     private static JPanel mainPanel, controlPanel;
@@ -47,7 +47,8 @@ public class CoasterSimulator {
                 for (;;) {//int i = 0; i < 50; i++) {
                     int rgbValue = (int)(Math.random()*0xFFFFFF);
                     mainLine.put(new Person(new Color(rgbValue)));
-                    Thread.sleep(200);
+                    System.out.println("Put person with color: " + rgbValue);
+                    //Thread.sleep(200);
                 }
             } catch (InterruptedException e) {
                 //e.printStackTrace();
@@ -161,8 +162,8 @@ public class CoasterSimulator {
     }
 
     private static void initializeVariables() throws InterruptedException {
-        coaster = new Coaster(2, 4);
-        mainLine = new ArrayBlockingQueue<Person>(500);
+        //coaster = new Coaster(2, 4);
+        mainLine = new ArrayBlockingQueue<Person>(96);
         for (int i = 0; i < 500; i++) {
             //mainLine.put(new Person());
         }
