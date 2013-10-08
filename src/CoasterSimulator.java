@@ -1,6 +1,7 @@
 package com.adarwin.coaster;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,7 +45,8 @@ public class CoasterSimulator {
             try {
                 Thread.sleep(3000);
                 for (;;) {//int i = 0; i < 50; i++) {
-                    mainLine.put(new Person());
+                    int rgbValue = (int)(Math.random()*0xFFFFFF);
+                    mainLine.put(new Person(new Color(rgbValue)));
                     Thread.sleep(200);
                 }
             } catch (InterruptedException e) {
@@ -58,6 +60,12 @@ public class CoasterSimulator {
         lineCoordinator = new Thread(() -> {
             for (;;) {
                 try {
+                    //synchronized(this) {
+                        LinkedPoint<RailSection> trainLocation =
+                                        coaster.train1.getCurrentRailSection();
+                        if (trainLocation.isStartingPoint()) {
+                        }
+                    //}
                     /*
                     if (car1Line.size() == 0) {
                         while (car1Line.offer(mainLine.take())) {}
@@ -91,33 +99,34 @@ public class CoasterSimulator {
                 boolean atStart = true;
                 for (;;) {//int i = 0; i < 50; i++) {
                     if (atStart) {
+                        // wait
                         int numberOfCars = coaster.train1.getNumberOfCars();
                         // Remove any existing passengers
                         for (Car car : coaster.train1.getCars()) {
-                            car.passengers.clear();
+                            car.getPassengers().clear();
                         }
                         Thread.sleep(1000);
                         for (int j = 0; j < numberOfCars; j++) {
                             Car car = coaster.train1.getCar(j);
-                            while (car.passengers.remainingCapacity() > 0) {
+                            while (car.getPassengers().remainingCapacity() > 0) {
                                 Thread.sleep(200);
                                 Person person;
                                 switch (j) {
                                 case 0:
                                     person = car1Line.take();
-                                    car.passengers.offer(person);
+                                    car.getPassengers().offer(person);
                                     break;
                                 case 1:
                                     person = car2Line.take();
-                                    car.passengers.offer(person);
+                                    car.getPassengers().offer(person);
                                     break;
                                 case 2:
                                     person = car3Line.take();
-                                    car.passengers.offer(person);
+                                    car.getPassengers().offer(person);
                                     break;
                                 case 3:
                                     person = car4Line.take();
-                                    car.passengers.offer(person);
+                                    car.getPassengers().offer(person);
                                     break;
                                 }
                             }

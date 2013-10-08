@@ -30,6 +30,7 @@ public class CoasterDrawingPanel extends JPanel {
         //synchronized(this) {
             LinkedPoint<Boolean> currentLineSpace = coaster.getMainLineSpace();
             for (Person person : CoasterSimulator.mainLine) {
+                g.setColor(person.getColor());
                 int x = currentLineSpace.x*lineSpaceSize+horizontalOffset;
                 int y = currentLineSpace.y*lineSpaceSize+verticalOffset;
                 //g.drawRect(x, y, lineSpaceSize, lineSpaceSize);
@@ -37,6 +38,7 @@ public class CoasterDrawingPanel extends JPanel {
                 currentLineSpace = currentLineSpace.getNext();
                 if (currentLineSpace == null) break;
             }
+            g.setColor(Color.black);
         //}
         verticalOffset = 150;
         horizontalOffset = 200;
@@ -54,11 +56,11 @@ public class CoasterDrawingPanel extends JPanel {
         // Draw track
         LinkedPoint<RailSection> startingRailSection = track.getStartingRailSection();
         LinkedPoint<RailSection> railSection = startingRailSection;
-        g.setColor(Color.blue);
+        //g.setColor(Color.blue);
         g.drawRect(trackXCoord+(startingRailSection.x*multiplier),
                    trackYCoord+(startingRailSection.y*multiplier),
                    multiplier, multiplier);
-        g.setColor(Color.black);
+        //g.setColor(Color.black);
         while ((railSection = railSection.getNext()) != null)
         {
             g.drawRect(trackXCoord+(railSection.x*multiplier),
@@ -86,7 +88,8 @@ public class CoasterDrawingPanel extends JPanel {
             int rowNumber = 0;
             int seatNumber = 0;
             g.setColor(Color.black);
-            for (Person person : car.passengers) {
+            for (Person person : car.getPassengers()) {
+                g.setColor(person.getColor());
                 g.fillOval(carXCoord+seatMargin + (seatNumber*seatSize) + (seatMargin*seatNumber),
                            carYCoord+seatMargin + (rowNumber*seatSize) + (seatMargin*rowNumber),
                            lineSpaceSize, lineSpaceSize);
@@ -116,11 +119,13 @@ public class CoasterDrawingPanel extends JPanel {
         if (xScalar == 0) xScalar = lineSpaceSize;
         if (yScalar == 0) yScalar = lineSpaceSize;
         for (Person person : carLine) {
+            g.setColor(person.getColor());
             int x = currentLineSpace.x * xScalar + xCoord;
             int y = currentLineSpace.y * yScalar + yCoord;
             g.fillOval(x, y, lineSpaceSize, lineSpaceSize);
             currentLineSpace = currentLineSpace.getNext();
             if (currentLineSpace == null) break;
         }
+        g.setColor(Color.black);
     }
 }

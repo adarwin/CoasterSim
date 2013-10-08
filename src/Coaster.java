@@ -3,34 +3,38 @@ package com.adarwin.coaster;
 import java.util.ArrayList;
 
 public class Coaster {
-    private ArrayList<Train> trains;
-    protected Train train1;
-    private Track track;
-    private LinkedPoint<Boolean> mainLineSpace;
-    private LinkedPoint<Boolean> car1LineSpace, car2LineSpace,
-                                 car3LineSpace, car4LineSpace;
+    final private ArrayList<Train> trains;
+    final protected Train train1;
+    final private Track track;
+    final private LinkedPoint<Boolean> mainLineSpace;
+    final private LinkedPoint<Boolean> car1LineSpace, car2LineSpace,
+                                       car3LineSpace, car4LineSpace;
 
     public Coaster(int numberOfTrains, int numberOfCarsPerTrain) {
         track = new Track();
         train1 = new Train(numberOfCarsPerTrain);
         train1.setRailSection(track.getStartingRailSection());
         trains = new ArrayList<Train>(numberOfTrains);
+        /*
         for (int i = 0; i < numberOfTrains; i++) {
             trains.add(new Train(numberOfCarsPerTrain));
         }
-        buildMainLineSpace();
-        buildCarLineSpaces();
-    }
-    private void buildCarLineSpaces() {
+        */
+        int lineHeight = 20;
+        int exitWidthOffset = 10;
+        int exitHeightOffset = 9;
+        mainLineSpace = new LinkedPoint<Boolean>(false, exitWidthOffset,
+                                                 exitHeightOffset, true);
+        buildMainLineSpace(lineHeight, exitWidthOffset, exitHeightOffset);
+
         int carLineLength = 4;
-        int carLineIndex = 0;
-        int numberOfCarLines = 4;
-        car1LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 0);
-        car2LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 1);
-        car3LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 2);
-        car4LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 3);
-        //while (carLineIndex < numberOfCarLines-1) {
-        //}
+        car1LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 0, true);
+        car2LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 1, true);
+        car3LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 2, true);
+        car4LineSpace = new LinkedPoint<Boolean>(false, carLineLength-1, 3, true);
+        buildCarLineSpaces(carLineLength);
+    }
+    private void buildCarLineSpaces(int carLineLength) {
         for (int i = carLineLength-2; i >= 0; i--) {
             car1LineSpace.add(false, i, 0);
             car2LineSpace.add(false, i, 1);
@@ -38,13 +42,12 @@ public class Coaster {
             car4LineSpace.add(false, i, 3);
         }
     }
-    private void buildMainLineSpace() {
-        int lineHeight = 20;
-        int exitWidthOffset = 10;
-        int exitHeightOffset = 9;
+    private void buildMainLineSpace(int lineHeight, int exitWidthOffset,
+                                    int exitHeightOffset) {
+        /*
         mainLineSpace = new LinkedPoint<Boolean>(false, exitWidthOffset,
-                                                 exitHeightOffset);
-        mainLineSpace.setStartingPoint(true);
+                                                 exitHeightOffset, true);
+        */
         int horizontalCoord = exitWidthOffset-1;
         for (int i = exitHeightOffset; i >= 0; i--) {
             mainLineSpace.add(false, horizontalCoord, i);
